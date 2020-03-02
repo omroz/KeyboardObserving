@@ -17,15 +17,15 @@ public struct HiddenWhenKeyboardVisibleView<Content: View>: View {
     self.content = builder()
   }
 
-  public var body: some View {
-  
-  #if targetEnvironment(macCatalyst)
-  return content
-  #else
+    public var body: some View {
 
-    return content
-        .opacity(keyboard.state.height == 0 ? 1.0 : 0.0)
-        .animation(.easeOut(duration: keyboard.state.animationDuration))
-  #endif
-  }
+        #if targetEnvironment(macCatalyst)
+        return content
+        #else
+        return withAnimation(.easeOut(duration: keyboard.state.animationDuration)) {
+            content
+                .opacity(keyboard.state.height == 0 ? 1.0 : 0.0)
+        }
+        #endif
+    }
 }

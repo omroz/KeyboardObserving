@@ -12,29 +12,30 @@ import SwiftUI
 ///
 public struct KeyboardObservingView<Content: View>: View {
 
-  @EnvironmentObject var keyboard: Keyboard
+    @EnvironmentObject var keyboard: Keyboard
 
-  let content: Content
+    let content: Content
 
-  public init(@ViewBuilder builder: () -> Content) {
-    self.content = builder()
-  }
+    public init(@ViewBuilder builder: () -> Content) {
+        self.content = builder()
+    }
 
-  public var body: some View {
-  
-  // for some reason, this can cause stuttering
-  // in mac catalyst applications
-  // and we don't need to observe the keyboard
-  // in mac catalist anyway
-  // so only return the content in mac catalyst
-  // (I think it's the animation, but I'm not sure)
-  #if targetEnvironment(macCatalyst)
-  return content
-  #else
-  return content
-      .padding([.bottom], keyboard.state.height)
-      .edgesIgnoringSafeArea((keyboard.state.height > 0) ? [.bottom] : [])
-      .animation(.easeOut(duration: keyboard.state.animationDuration))
-  #endif
-  }
+    public var body: some View {
+
+        // for some reason, this can cause stuttering
+        // in mac catalyst applications
+        // and we don't need to observe the keyboard
+        // in mac catalist anyway
+        // so only return the content in mac catalyst
+        // (I think it's the animation, but I'm not sure)
+        #if targetEnvironment(macCatalyst)
+        return content
+        #else
+        return withAnimation(.easeOut(duration: keyboard.state.animationDuration)) {
+            content
+                .padding([.bottom], keyboard.state.height)
+                .edgesIgnoringSafeArea((keyboard.state.height > 0) ? [.bottom] : [])
+        }
+        #endif
+    }
 }
